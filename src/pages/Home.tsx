@@ -10,10 +10,8 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
 import './Home.css';
-import React, {useEffect, useState} from "react";
-import {an} from "vitest/dist/reporters-5f784f42";
+import React, { useCallback, useEffect, useState } from 'react';
 
 const Home: React.FC = () => {
 
@@ -25,7 +23,6 @@ const Home: React.FC = () => {
         const response = await fetch('https://randomuser.me/api/?results=100'); // Replace with your API endpoint
         if (response.ok) {
           const jsonData = await response.json();
-          console.log('jsonData =====>', jsonData.results);
           setUsers(jsonData.results);
         } else {
           throw new Error('Failed to fetch data');
@@ -38,10 +35,16 @@ const Home: React.FC = () => {
     fetchUsers();
   }, [])
 
-  const onDelete = (indexToRemove: number) => {
+  const onDelete = useCallback((indexToRemove: number) => {
     const updatedUsers = users.filter((_, index) => index !== indexToRemove);
-    setUsers(updatedUsers)
-  }
+    setUsers(updatedUsers);
+    closeSlidingItems();
+  }, [users])
+
+  const closeSlidingItems = () => {
+    const list = document.querySelector('ion-list');
+    if (list) list.closeSlidingItems();
+  };
 
   return (
     <IonPage>
@@ -55,14 +58,14 @@ const Home: React.FC = () => {
           {users.map((item, index) => (
             <IonItemSliding key={index}>
               <IonItem>
-                <IonAvatar slot="start">
-                  <img src={item.picture.thumbnail} alt="" />
+                <IonAvatar slot='start'>
+                  <img src={item.picture.thumbnail} alt='' />
                 </IonAvatar>
                 <IonLabel>{`${item.name.first} ${item.name.last}`}</IonLabel>
               </IonItem>
 
               <IonItemOptions>
-                <IonItemOption color="danger" onClick={() => onDelete(index)}>Delete</IonItemOption>
+                <IonItemOption color='danger' onClick={() => onDelete(index)}>Delete</IonItemOption>
               </IonItemOptions>
             </IonItemSliding>
           ))}
